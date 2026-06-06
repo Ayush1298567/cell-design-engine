@@ -13,9 +13,8 @@ targets:
                                   # cooling, not a calibrated pouch temperature); ranks
                                   # designs, absolute value pending a pack thermal model
 
-# What this application values, used to weight the score among feasible designs.
-# A drone weights energy density; storage would weight lifetime instead.
-weights:
-  specific_energy: 1.0
-  rate_capability: 0.6
-  temp_rise: 0.4
+# The optimizer maximizes this tier-1 (quote-grade) metric among designs that meet
+# the targets above. Rate and temp are constraints, not objectives: a drone wants
+# the lightest pack that meets its power/thermal minimums, not extra margin it
+# cannot use. (A storage RFQ would maximize cycle life instead.)
+objective: specific_energy_Wh_kg

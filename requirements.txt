@@ -5,4 +5,5 @@ pandas==3.0.3
 pybamm==26.6.0.0
 pytest==9.0.3
 PyYAML==6.0.3
+scikit-optimize==0.10.2
 scipy==1.17.1
