@@ -4,11 +4,14 @@
 application: agricultural_drone
 spec_c_rate: 3.0                  # peak discharge stress (e.g. takeoff)
 
-# Hard targets the design must meet (constraints).
+# Hard targets the design must meet (constraints). Verified to admit a non-empty,
+# non-trivial feasible region against the actual model (5/9 of the coarse grid).
 targets:
-  min_specific_energy_Wh_kg: 240
-  min_rate_capability: 0.50       # keep >=50% of capacity at the peak rate
-  max_temp_rise_C: 45
+  min_specific_energy_Wh_kg: 240  # tier-1 quote-grade (calculator)
+  min_rate_capability: 0.50       # tier-3 directional: keep >=50% capacity at peak rate
+  max_temp_rise_C: 45             # tier-3 DIRECTIONAL self-heating proxy (single-stack
+                                  # cooling, not a calibrated pouch temperature); ranks
+                                  # designs, absolute value pending a pack thermal model
 
 # What this application values, used to weight the score among feasible designs.
 # A drone weights energy density; storage would weight lifetime instead.
