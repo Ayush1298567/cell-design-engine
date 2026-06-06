@@ -1,0 +1,12 @@
+# Energy-dense, low-rate application (e.g. stationary storage discharge profile).
+# NOTE: real storage cares most about CYCLE LIFE, which the engine does not model
+# yet (no degradation). So today this optimizes energy at low rate, not lifetime.
+application: low_rate_energy
+spec_c_rate: 1.0                  # gentle rate
+
+targets:
+  min_specific_energy_Wh_kg: 265  # high energy bar
+  min_rate_capability: 0.40
+  max_temp_rise_C: 30
+
+objective: specific_energy_Wh_kg

@@ -1,0 +1,10 @@
+# High-power application (e.g. power tool): wants to deliver hard, accepts less energy.
+application: power_tool
+spec_c_rate: 5.0                  # demanding peak rate
+
+targets:
+  min_specific_energy_Wh_kg: 200  # lower energy bar (power-first)
+  min_rate_capability: 0.60       # must hold rate hard
+  max_temp_rise_C: 55
+
+objective: specific_energy_Wh_kg  # max energy among designs that meet the power/thermal bar
