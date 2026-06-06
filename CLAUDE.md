@@ -49,10 +49,11 @@ non-trivial design decision.
    the assumption is wrong. Fix the cause or flag it. A green test sitting on a
    hardcoded number is worse than a red one, because it hides the problem.
 
-8. **Explain structural designs before building them.** For the schema, the
-   validation harness, or any choice that is hard to reverse, use plan mode:
-   propose the design and the reasoning, get approval, then write code. Ayush
-   stays the architect.
+8. **Explain as you build, but do not gate on technical approval.** For
+   structural choices (schema, validation harness), explain the design and the
+   reasoning in chat as it is built, so Ayush understands the system he will
+   present. Per rule 11, technical and implementation structure is my call;
+   only high-level forks wait for Ayush.
 
 9. **Tutor as you go.** When using a PyBaMM/PyBOP API or a technique Ayush may not
    know, explain in chat what it does and why it was chosen. Building the tool and
@@ -60,6 +61,15 @@ non-trivial design decision.
 
 10. **Commit after every verified step.** Small commits, tight messages, so a bad
     experiment rolls back cleanly instead of being untangled.
+
+11. **Most effective route, not the easiest, and own the technical calls.**
+    Default to the highest-leverage approach even when it costs more effort.
+    Never pick a weaker method because it is quicker. Make all technical and
+    implementation decisions autonomously and explain the reasoning in chat
+    (rule 9). Bring only high-level decisions to Ayush: scope, strategy, and
+    anything that changes what the deliverable is or what we tell IBC. When
+    unsure whether a decision is high-level, lean toward deciding it and noting
+    the call rather than asking.
 
 ## If the same error hits three times
 
