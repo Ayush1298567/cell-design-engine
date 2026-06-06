@@ -70,6 +70,8 @@ def report_summary(opt_result, spec):
     LLM version: write the engineer-facing narrative (tradeoffs, why the winner
     wins). Stub: a templated one-paragraph summary from the numbers.
     """
+    from .report import fmt_temp
+
     b = opt_result.best_result.metrics
     lead = ("Recommended (a representative energy-max design on the feasible frontier)"
             if opt_result.best_result.feasible
@@ -77,6 +79,6 @@ def report_summary(opt_result, spec):
     return (
         f"{lead}: {b.get('specific_energy_Wh_kg', 0):.0f} Wh/kg, "
         f"{b.get('capacity_Ah', 0):.1f} Ah, rate capability {b.get('rate_capability', 0):.2f} at "
-        f"{spec['spec_c_rate']}C, temp rise {b.get('temp_rise_C', 0):.0f} C (directional). "
+        f"{spec['spec_c_rate']}C, temp rise {fmt_temp(b.get('temp_rise_C', 0))} C (directional). "
         f"{opt_result.n_feasible} of {len(opt_result.evaluations)} evaluated designs met all targets."
     )

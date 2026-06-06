@@ -60,10 +60,13 @@ def score_from_metrics(specific_energy_Wh_kg, rate_capability, temp_rise_C, ok, 
         violations["temp_rise"] = (temp_rise_C - t["max_temp_rise_C"]) / t["max_temp_rise_C"]
 
     # Lexicographic: feasible designs ranked by energy; infeasible designs sit a
-    # fixed offset below the entire feasible band (with a relative gradient so the
-    # optimizer can still climb toward feasibility). No reward for exceeding a target.
+    # fixed offset below the entire feasible band, ranked ONLY by total violation so
+    # the gradient always points toward feasibility (energy is excluded here so a
+    # high-energy deeply-infeasible design cannot outrank a near-feasible one). The
+    # fixed offset dominates any realistic energy (cells are < ~400 Wh/kg, offset 1e6),
+    # so no infeasible design can reach the feasible band.
     if violations:
-        score = specific_energy_Wh_kg - INFEASIBLE_OFFSET - PENALTY * sum(violations.values())
+        score = -INFEASIBLE_OFFSET - PENALTY * sum(violations.values())
     else:
         score = specific_energy_Wh_kg
     return ObjResult(score, len(violations) == 0, metrics, violations)

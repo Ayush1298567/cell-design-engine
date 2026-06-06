@@ -15,6 +15,12 @@ import numpy as np
 from . import calculator, objective
 
 
+def fmt_temp(tr):
+    """Display a temp rise. Non-finite means the design died before the thermal
+    checkpoint (a non-comparable, infeasible design), shown as '>limit' not 'inf'."""
+    return ">limit" if not np.isfinite(tr) else f"{tr:.0f}"
+
+
 def evaluate_grid(base_cell, platform, rfq, n_thk=15, n_por=13, progress=False):
     """Evaluate a dense grid of designs for the landscape map (heavy: runs the DFN)."""
     dv = platform["design_variables"]
@@ -63,6 +69,7 @@ def render_heatmap(grid, opt_result, rfq, out_path):
     ax2.set_title("Objective score (feasible only) with optimizer path")
 
     for ax in (ax1, ax2):
+        ax.contourf(thks, pors, feas, levels=[-0.5, 0.5], colors=["gray"], alpha=0.22)  # shade infeasible
         ax.contour(thks, pors, feas, levels=[0.5], colors="white", linewidths=2)
         ax.scatter([bx], [by], s=220, marker="*", c="white", edgecolors="black", label="recommended", zorder=5)
         ax.set_xlabel("Cathode thickness [um]")
@@ -74,7 +81,7 @@ def render_heatmap(grid, opt_result, rfq, out_path):
     t = rfq["targets"]
     fig.text(0.5, 0.005,
              f"Recommended design is constraint-binding: rate {best.get('rate_capability', 0):.2f} "
-             f"(floor {t['min_rate_capability']:.2f}), temp rise {best.get('temp_rise_C', 0):.0f} C "
+             f"(floor {t['min_rate_capability']:.2f}), temp rise {fmt_temp(best.get('temp_rise_C', 0))} C "
              f"(limit {t['max_temp_rise_C']:.0f}, directional). The brightest energy cells lie OUTSIDE "
              f"the feasible boundary.", ha="center", fontsize=9)
     fig.tight_layout(rect=[0, 0.04, 1, 1])
@@ -128,7 +135,7 @@ def write_report(run_result, summary, heatmap_path, out_path, top_n=5):
             f"| {idx} | {ov['cathode.thickness_um']:.0f} | {ov['cathode.porosity']:.3f} | "
             f"{m.get('specific_energy_Wh_kg', 0):.0f} | {m.get('capacity_Ah', 0):.1f} | "
             f"{m.get('energy_density_Wh_L', 0):.0f} | {m.get('rate_capability', 0):.2f} | "
-            f"{m.get('temp_rise_C', 0):.0f} | {'yes' if r.feasible else 'no'} |"
+            f"{fmt_temp(m.get('temp_rise_C', 0))} | {'yes' if r.feasible else 'no'} |"
         )
     lines.append(f"\n{opt.n_feasible} of {len(opt.evaluations)} evaluated designs were feasible. "
                  "The winner is one representative energy-max design on the feasible frontier; "

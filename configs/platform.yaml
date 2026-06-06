@@ -5,8 +5,10 @@
 # What the optimizer is allowed to vary, and over what range. The bounds exclude
 # the unmanufacturable and (here) keep the cell cathode-limited for a clean demo.
 design_variables:
-  cathode.thickness_um: {min: 50, max: 100}   # past ~80 the constraints bind, so the
-  cathode.porosity: {min: 0.25, max: 0.45}    # feasible optimum is interior, not at the wall
+  cathode.thickness_um: {min: 50, max: 100}   # thickness optimum is interior (~65um): past
+  cathode.porosity: {min: 0.25, max: 0.45}    # ~80um the rate/thermal constraints bind. Porosity
+                                              # optimum sits at the lower (densest) calendering
+                                              # limit, as expected (denser = more energy).
 
 # Hard manufacturing/safety envelope the validation layer enforces per candidate.
 manufacturing_envelope:

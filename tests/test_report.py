@@ -43,6 +43,29 @@ def test_evaluate_grid_shape_and_values():
             assert math.isclose(grid["specific_energy"][i, j], expected, rel_tol=1e-9)
 
 
+def test_inf_temp_renders_as_limit_not_inf(tmp_path):
+    from celltool import agents
+    # all-infeasible history whose top design died before the thermal checkpoint (temp=inf)
+    ov = {"cathode.thickness_um": 92, "cathode.porosity": 0.30}
+    res = objective.ObjResult(score=-1e6 - 100, feasible=False, metrics={
+        "specific_energy_Wh_kg": 260, "capacity_Ah": 22.0, "energy_density_Wh_L": 620,
+        "rate_capability": 0.55, "temp_rise_C": float("inf"), "sim_ok": True})
+    optr = optimizer.OptResult(ov, res, [(ov, res)], [(ov, res)], 0)
+
+    summary = agents.report_summary(optr, RFQ)
+    assert ">limit" in summary and "inf C" not in summary
+
+    class _Run:
+        spec = RFQ
+        strategy = {"n_calls": 1, "rationale": "t"}
+        opt = optr
+    out = tmp_path / "r.md"
+    report.write_report(_Run(), summary, "design_space.png", str(out))
+    text = out.read_text()
+    assert ">limit" in text
+    assert "| inf |" not in text
+
+
 def test_write_report_creates_file(tmp_path):
     res = optimizer.optimize(CELL, PLATFORM, RFQ, n_calls=8, n_initial=4, seed=0)
 

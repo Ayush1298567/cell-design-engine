@@ -14,7 +14,7 @@
 # REVIEW NOTE (Ayush, rule 4): these densities were corrected from coating-level
 # values (3.4 / 1.6) to true solid-composite values (4.6 / 2.3) so the calculator
 # does not double-discount porosity. With the fix the demo cell's cathode areal
-# capacity (~4.5 mAh/cm2) and energy density (~660 Wh/L) match the real LG M50.
+# capacity (~4.5 mAh/cm2) and energy density (~710 Wh/L) sit in the real NMC811 band.
 # Please confirm these against IBC's own material data before any handoff.
 
 name: demo_NMC811_graphite
