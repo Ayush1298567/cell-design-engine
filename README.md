@@ -33,8 +33,8 @@ This repo currently holds the concept and project history. Code lands after the 
 
 ## Docs
 
-- [`Context/THE_IDEA.md`](Context/THE_IDEA.md) — the complete concept: problem, business logic, every component, technical foundations, honest limitations, open questions.
-- [`Context/PROJECT_HISTORY.md`](Context/PROJECT_HISTORY.md) — internship timeline, decision log, research findings, current open items.
+- [`docs/THE_IDEA.md`](docs/THE_IDEA.md) — the complete concept: problem, business logic, every component, technical foundations, honest limitations, open questions.
+- [`docs/PROJECT_HISTORY.md`](docs/PROJECT_HISTORY.md) — internship timeline, decision log, research findings, current open items.
 
 ## Stack
 
