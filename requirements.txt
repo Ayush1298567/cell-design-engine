@@ -1,0 +1,7 @@
+casadi==3.7.2
+matplotlib==3.10.9
+numpy==2.4.6
+pybamm==26.6.0.0
+pytest==9.0.3
+PyYAML==6.0.3
+scipy==1.17.1
