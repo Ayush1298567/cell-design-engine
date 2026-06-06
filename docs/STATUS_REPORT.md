@@ -30,13 +30,13 @@ structured specification, searches the manufacturable design space with Bayesian
 optimization over a validated physics model, and returns ranked designs with the
 reasoning attached.
 
-![Engine pipeline](/Users/ayushgarg/Ayush/Cell Design optimization Tool/results/architecture.png)
+![Engine pipeline](/Users/ayushgarg/Ayush/Cell Design optimization Tool/results/pipeline.png)
 
 The pipeline is a deterministic Python program. Language-model agents are
-consulted only at defined checkpoints (intake, strategy, analysis, report), and
-they pick from bounded menus that a deterministic layer validates before anything
-runs. The physics is the final filter. This containment is deliberate: the worst
-a hallucination can cause is a rejected message and a retry, never a bad design
+consulted only at defined checkpoints (intake, strategy, analysis), and they pick
+from bounded menus that a deterministic layer validates before anything runs. The
+physics is the final filter. This containment is deliberate: the worst a
+hallucination can cause is a rejected message and a retry, never a bad design
 reaching the output.
 
 The amber boxes are those language-model checkpoints. Today they run as
@@ -45,11 +45,13 @@ runs with no API key and no cost. Swapping in real language models later is a
 one-file change per checkpoint, because the contract the rest of the system
 depends on does not change.
 
-The blue box is the heart: a Bayesian optimizer that maintains a statistical map
-of the design space and chooses the next design to simulate by balancing
-exploration against exploitation. Every trial is informed by every previous
-trial, so it finds good designs in tens of simulations rather than a blind grid
-of thousands.
+The blue boxes are the deterministic tools, and the optimization loop is the
+heart. A Bayesian optimizer maintains a statistical map of the design space and
+chooses the next design to simulate by balancing exploration against
+exploitation. Each candidate is realized into a full cell (the anode is
+co-balanced to hold the safety ratio), scored by the calculator and the DFN, and
+fed back to the optimizer. Every trial is informed by every previous trial, so it
+finds good designs in tens of simulations rather than a blind grid of thousands.
 
 ---
 
@@ -196,6 +198,25 @@ real production bottleneck; it helps the front of the business and frees
 pilot-line slots, and we do not claim more than that.
 
 ---
+
+# The calibration flywheel (the moat)
+
+The piece that turns this from a useful demo into a permanent, compounding part of
+IBC's workflow is the calibration loop, and it is also the piece an outside vendor
+cannot replicate, because it runs on data that never leaves IBC.
+
+![Calibration flywheel](/Users/ayushgarg/Ayush/Cell Design optimization Tool/results/flywheel.png)
+
+Each time IBC builds and tests a prototype, that real data is fed back, the model
+is refit to IBC's own cells, and the next design starts from everything learned in
+every design before it. Over time the predictions move from "literature cells" to
+"IBC's actual materials and process," and design number twenty starts from
+everything learned in designs one through nineteen. This loop is built on data
+that stays inside IBC's walls, which is exactly why two interns inside the company
+can build it and an external simulation vendor cannot.
+
+This loop is planned, not built: it needs IBC test data and the calibration step
+(item 5 in the next list). Everything upstream of it is already in place.
 
 # What we need from IBC
 

@@ -1,0 +1,22 @@
+flowchart TD
+    RFQ["Customer RFQ<br/>plain language"]:::human --> INT["Intake *<br/>structured spec"]:::seam
+    INT --> STR["Strategy *<br/>search budget and regions"]:::seam
+    STR --> OPT["Bayesian optimizer<br/>propose next design"]:::built
+
+    subgraph LOOP["Optimization loop &mdash; every trial informed by all prior trials"]
+        direction TB
+        OPT --> REAL["Realize design<br/>co-balance anode to hold N/P"]:::built
+        REAL --> CALC["Calculator<br/>capacity, energy, mass<br/>tier-1 quote-grade"]:::built
+        REAL --> DFN["DFN simulation<br/>rate capability, thermal<br/>tier-3 directional"]:::built
+        CALC --> OBJ{"Objective<br/>feasible? scored"}:::built
+        DFN --> OBJ
+        OBJ -->|next trial| OPT
+    end
+
+    LOOP --> ANA["Analysis *<br/>improvement flattened?"]:::seam
+    ANA --> REP["Report<br/>ranked designs +<br/>design-space maps"]:::built
+    REP --> ENG["Engineer<br/>review and build"]:::human
+
+    classDef built fill:#2e6fb7,color:#ffffff,stroke:#1a2a4f,stroke-width:1px;
+    classDef seam fill:#e0a13c,color:#ffffff,stroke:#b87a1e,stroke-width:1px;
+    classDef human fill:#8a8f99,color:#ffffff,stroke:#5a5f69,stroke-width:1px;

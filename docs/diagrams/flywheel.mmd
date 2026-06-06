@@ -1,0 +1,9 @@
+flowchart LR
+    DES["Engine proposes<br/>better starting design"]:::tool --> BUILD["IBC builds<br/>prototype on pilot line"]:::ibc
+    BUILD --> TEST["IBC tests<br/>cycle, rate, thermal"]:::ibc
+    TEST --> DATA["Real test data<br/>uploaded to the tool"]:::tool
+    DATA --> FIT["Refit DFN to IBC cells<br/>PyBOP calibration"]:::tool
+    FIT --> DES
+
+    classDef tool fill:#2e6fb7,color:#ffffff,stroke:#1a2a4f,stroke-width:1px;
+    classDef ibc fill:#8a8f99,color:#ffffff,stroke:#5a5f69,stroke-width:1px;
