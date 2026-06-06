@@ -10,16 +10,19 @@ Built by Ayush Garg and Rohan Prasad for International Battery Company (IBC).
 
 A customer shows up with an application in plain language (drone, 45 min flights, 80 A at takeoff, desert heat, 500 cycles, fixed volume and weight). The engine turns that into a ranked set of buildable cell designs plus a DoE build plan, searching inside IBC's three Prabal platforms and inside IBC's manufacturing envelope.
 
-Built (deterministic engine):
+Built — the deterministic engine runs end to end (`python scripts/run_demo.py`): spec in → ranked buildable designs + design-space maps out.
 
-- **Quote-grade calculator** — capacity, energy, mass, volume, layer counts from algebra over known material properties. Lands within a percent or two of the built cell.
-- **DFN physics simulation** (PyBaMM) — rate capability and relative thermal behavior. Directional on literature parameters; design-guidance grade once calibrated to IBC's own test data.
+- **Quote-grade calculator** — capacity, energy, mass, volume, N/P from algebra over known material properties. Lands within a percent or two of the built cell.
+- **DFN physics simulation** (PyBaMM) — rate capability and a relative thermal proxy, validated against real Chen2020/LG M50 data. Directional on literature parameters; design-guidance grade once calibrated to IBC's own test data.
+- **Objective + Bayesian optimization** — maximizes the tier-1 specific energy subject to rate/thermal constraints; a Gaussian-process search finds the feasible optimum in tens of simulations.
+- **Orchestrator + report** — runs the pipeline and emits ranked distinct designs plus design-space heatmaps with the feasible region marked.
+- **Agent seams** — intake/strategy/analysis/report are named functions with fixed contracts, currently deterministic stubs (no API key, runs free). The orchestrator validates every seam output.
 
 Planned (post-meeting):
 
-- **Bayesian optimization** — picks which exact designs to simulate next; finds good designs in hundreds of sims instead of tens of thousands, works from run one.
-- **Agent layer** — one LLM in narrow, bounded roles (intake, strategy, analysis, evaluation, report), consulted at checkpoints, picking from menus of legal actions. A deterministic Python orchestrator validates every answer; physics is the final filter.
+- **Real LLM agents** — swap each stub body for a Claude API call returning the same validated shape (needs IBC to fund the API). One file per agent; the orchestrator never changes.
 - **Calibration flywheel** — real test data flows back, the model refits to IBC's cells, and design N starts from everything learned in designs 1 through N-1. This is the moat, and it only works inside IBC's walls.
+- **DoE build plan** — propose the few prototypes that jointly teach the most when physically built (beyond the current distinct-design de-duplication).
 
 ## Trust tiers
 
@@ -32,14 +35,21 @@ Every output is labeled with the confidence of the layer that produced it:
 
 ## Status
 
-Phase 1 (per IBC, May 2026): implement and validate PyBaMM's DFN model. The rest of the engine follows. No build started yet.
+DFN validated against real LG M50 data (`docs/validation_chen2020.md`), and the full deterministic engine is built and demoable on literature data. Numbers above the calculator tier are directional until calibrated on IBC's own cells. The demo cell, bounds, and targets are strawman/literature placeholders (config-driven) pending IBC values. `cell.yaml` density/packaging choices are flagged for review.
 
-This repo currently holds the concept and project history. Code lands after the June 8 kickoff and the DFN validation scope is confirmed.
+## Run
+
+```
+python data/download_data.py          # fetch validation data (Zenodo, MD5-checked)
+python -m pytest tests/ -q            # 47 tests
+python scripts/run_demo.py            # end-to-end: ranked designs + design-space maps in results/
+```
 
 ## Docs
 
 - [`docs/THE_IDEA.md`](docs/THE_IDEA.md) — the complete concept: problem, business logic, every component, technical foundations, honest limitations, open questions.
 - [`docs/PROJECT_HISTORY.md`](docs/PROJECT_HISTORY.md) — internship timeline, decision log, research findings, current open items.
+- [`docs/validation_chen2020.md`](docs/validation_chen2020.md) — the DFN-vs-experiment validation, with honest error decomposition.
 
 ## Stack
 
