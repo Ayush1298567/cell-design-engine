@@ -2,8 +2,11 @@
 
 Refines the spatial mesh (electrodes/separator x, particles r) and checks that
 the terminal voltage stops changing. This separates numerical error from physics
-error: once converged, any gap against experimental data is real physics, not
-grid coarseness. Reports max/RMS voltage deviation of each mesh vs the finest.
+error. Reports each mesh's deviation from the FINEST tested mesh (48 pts) -- note
+that is a lower bound on the true discretisation error, since the 48-pt mesh
+carries its own grid error (a 64-pt reference puts the 32-pt absolute error at
+~3.7 mV vs 2.6 mV against 48 pts). Either way it is far below the ~40 mV physics
+bias, so numerical error is negligible against the physics budget.
 """
 
 import time

@@ -5,6 +5,8 @@ physically sensible discharge curve. Not validation (rule 6) -- just proof the
 machinery works. Saves the voltage curve to results/smoke_dfn_1C.png.
 """
 
+import os
+import sys
 import time
 
 import matplotlib
@@ -14,11 +16,15 @@ import matplotlib.pyplot as plt
 
 import pybamm
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+from celltool import constants  # noqa: E402
+
 model = pybamm.lithium_ion.DFN()
 params = pybamm.ParameterValues("Chen2020")
 
-experiment = pybamm.Experiment(["Discharge at 1C until 2.5 V"])
-sim = pybamm.Simulation(model, parameter_values=params, experiment=experiment)
+experiment = pybamm.Experiment([f"Discharge at 1C until {constants.DISCHARGE_CUTOFF_V} V"])
+# Same converged mesh the engine ships with, so the proof artifact matches production.
+sim = pybamm.Simulation(model, parameter_values=params, experiment=experiment, var_pts=constants.CONVERGED_MESH)
 
 t0 = time.perf_counter()
 solution = sim.solve()
