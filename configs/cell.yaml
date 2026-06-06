@@ -1,0 +1,54 @@
+# STRAWMAN cell design schema. Ayush owns this file (CLAUDE.md rule 4).
+# This is the IBC handoff interface: every field, its units, and its meaning
+# should be something you can explain to a battery engineer. React to it and
+# make it yours; the engine reads it but does not depend on these exact names.
+#
+# Numbers are roughly NMC811 / graphite-SiOx (LG M50 family), so the demo cell
+# ties back to the cell we validated the DFN against. They are literature
+# placeholders, not IBC values.
+#
+# Modelling convention: `density_g_cm3` for a coating is the SOLID MATRIX density
+# (active + binder + carbon, excluding pores). Coating mass per area is therefore
+# thickness * (1 - porosity) * matrix_density.
+
+name: demo_NMC811_graphite
+
+cathode:
+  active_material: NMC811
+  specific_capacity_mAh_g: 195      # practical reversible capacity
+  active_fraction: 0.95             # active mass fraction of the solid matrix
+  matrix_density_g_cm3: 3.4         # solid matrix density (excludes pores)
+  thickness_um: 75                  # coating thickness per side (DESIGN PARAM)
+  porosity: 0.30                    # void fraction (DESIGN PARAM)
+
+anode:
+  active_material: graphite_SiOx
+  specific_capacity_mAh_g: 360
+  active_fraction: 0.96
+  matrix_density_g_cm3: 1.6
+  thickness_um: 95                  # sized for N/P ~1.1 (anode excess, safety)
+  porosity: 0.30
+
+separator:
+  thickness_um: 12
+  porosity: 0.45
+  matrix_density_g_cm3: 0.95
+
+current_collectors:
+  cathode_Al_thickness_um: 15
+  cathode_Al_density_g_cm3: 2.70
+  anode_Cu_thickness_um: 8
+  anode_Cu_density_g_cm3: 8.96
+
+electrolyte:
+  density_g_cm3: 1.20               # fills the pore volume
+
+geometry:
+  electrode_width_mm: 100
+  electrode_height_mm: 100
+  num_layers: 30                    # repeating double-sided layers in the stack
+
+cell:
+  nominal_voltage_V: 3.7
+  packaging_mass_g: 25              # can, tabs, terminals overhead
+  packaging_volume_cm3: 20

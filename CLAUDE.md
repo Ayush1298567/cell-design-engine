@@ -14,10 +14,15 @@ non-trivial design decision.
 
 ## Hard rules
 
-1. **Scope gate: DFN validation only.** The sanctioned scope is implementing and
-   validating PyBaMM's DFN model. Do not build the optimizer, agent layer,
-   calculator, or knowledge base until that scope is explicitly expanded. If a
-   task seems to require them, stop and flag it.
+1. **Scope: build the demo engine (engine-first, no live LLMs yet).** DFN is
+   validated (see docs/validation_chen2020.md). Sanctioned now: a config-driven,
+   deterministic end-to-end engine demo (spec -> calculator -> Bayesian optimizer
+   over validated DFN -> ranked designs + design-space maps + report). The LLM
+   agent decisions are built as stubbed seams (named functions with fixed
+   input/output contracts), NOT wired to a real API, because IBC has not yet
+   funded the API key. Do NOT build: live LLM calls, a ChromaDB knowledge base,
+   the calibration loop, or the full DoE build-plan optimizer. Those are
+   post-meeting. Everything is config-driven so IBC values plug in later.
 
 2. **Build bottom-up, never ahead.** Order: calculator -> validated DFN ->
    calibration loop -> optimizer -> agent layer. Each layer works and is
