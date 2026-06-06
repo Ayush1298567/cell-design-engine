@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Env / secrets
+.env
+.env.*
+*.local
+
+# Simulation / data outputs
+results/
+runs/
+*.csv
+*.h5
+*.parquet
+chroma/
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
