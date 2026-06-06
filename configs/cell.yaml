@@ -7,9 +7,15 @@
 # ties back to the cell we validated the DFN against. They are literature
 # placeholders, not IBC values.
 #
-# Modelling convention: `density_g_cm3` for a coating is the SOLID MATRIX density
-# (active + binder + carbon, excluding pores). Coating mass per area is therefore
-# thickness * (1 - porosity) * matrix_density.
+# Modelling convention: `matrix_density_g_cm3` is the SOLID MATRIX density (active
+# + binder + carbon, EXCLUDING pores), i.e. the true pore-free composite density.
+# Coating mass per area = thickness * (1 - porosity) * matrix_density.
+#
+# REVIEW NOTE (Ayush, rule 4): these densities were corrected from coating-level
+# values (3.4 / 1.6) to true solid-composite values (4.6 / 2.3) so the calculator
+# does not double-discount porosity. With the fix the demo cell's cathode areal
+# capacity (~4.5 mAh/cm2) and energy density (~660 Wh/L) match the real LG M50.
+# Please confirm these against IBC's own material data before any handoff.
 
 name: demo_NMC811_graphite
 
@@ -17,7 +23,7 @@ cathode:
   active_material: NMC811
   specific_capacity_mAh_g: 195      # practical reversible capacity
   active_fraction: 0.95             # active mass fraction of the solid matrix
-  matrix_density_g_cm3: 3.4         # solid matrix density (excludes pores)
+  matrix_density_g_cm3: 4.6         # true solid composite density (excludes pores)
   thickness_um: 75                  # coating thickness per side (DESIGN PARAM)
   porosity: 0.30                    # void fraction (DESIGN PARAM)
 
@@ -25,8 +31,8 @@ anode:
   active_material: graphite_SiOx
   specific_capacity_mAh_g: 360
   active_fraction: 0.96
-  matrix_density_g_cm3: 1.6
-  thickness_um: 95                  # sized for N/P ~1.1 (anode excess, safety)
+  matrix_density_g_cm3: 2.3         # true solid composite density (excludes pores)
+  thickness_um: 88                  # sized for N/P ~1.1 (anode excess, safety)
   porosity: 0.30
 
 separator:
@@ -49,6 +55,7 @@ geometry:
   num_layers: 30                    # repeating double-sided layers in the stack
 
 cell:
-  nominal_voltage_V: 3.7
-  packaging_mass_g: 25              # can, tabs, terminals overhead
-  packaging_volume_cm3: 20
+  nominal_voltage_V: 3.7            # first-order: energy = capacity * this (rate-blind)
+  packaging_mass_g: 55              # can, tabs, terminals (realistic for a ~27 Ah cell)
+  packaging_volume_cm3: 28          # can wall + headspace overhead
+  target_np_ratio: 1.10             # anode is co-sized to hold this N/P when cathode varies

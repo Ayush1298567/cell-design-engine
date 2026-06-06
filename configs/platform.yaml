@@ -1,0 +1,15 @@
+# Optimizer search bounds + manufacturing envelope.
+# STRAWMAN literature values. IBC's real coating/calendering limits and platform
+# definitions plug in here later (CLAUDE.md rule 1); the engine reads this file.
+
+# What the optimizer is allowed to vary, and over what range. The bounds exclude
+# the unmanufacturable and (here) keep the cell cathode-limited for a clean demo.
+design_variables:
+  cathode.thickness_um: {min: 50, max: 80}
+  cathode.porosity: {min: 0.25, max: 0.45}
+
+# Hard manufacturing/safety envelope the validation layer enforces per candidate.
+manufacturing_envelope:
+  cathode.thickness_um: {min: 40, max: 110}   # coater range
+  cathode.porosity: {min: 0.22, max: 0.55}    # calendering range
+  np_ratio: {min: 1.05, max: 1.25}            # anode-excess safety window
