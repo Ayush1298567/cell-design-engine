@@ -27,7 +27,7 @@ grid = report.evaluate_grid(
     progress=True,
 )
 
-heatmap = report.render_heatmap(grid, run.opt, "results/design_space.png")
+heatmap = report.render_heatmap(grid, run.opt, run.spec, "results/design_space.png")
 md = report.write_report(run, summary, heatmap, "results/run_report.md")
 
 print(f"best design: {run.opt.best_overrides}")

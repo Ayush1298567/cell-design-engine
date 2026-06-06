@@ -9,8 +9,12 @@ independent, so it is valid for the calculator's full cell even though the DFN
 runs a single Chen2020 stack. Built on the validated Chen2020 DFN (see
 docs/validation_chen2020.md).
 
-Takes an already-realized cell (anode co-balanced via calculator.realize_design),
-so the cathode and anode the DFN sees match the cell the calculator quotes.
+Takes an already-realized cell (anode co-balanced via calculator.realize_design).
+The DFN runs Chen2020 electrochemistry on the design's GEOMETRY (thickness,
+porosity); it shares the geometry with the calculator but NOT the exact
+electrochemistry. The DFN's own electrode balance is set by Chen2020 stoichiometry,
+so its internal N/P is not the calculator's quoted 1.10 -- which is fine because
+this layer only outputs a relative rate ranking, not absolute capacity or N/P.
 
 temp_rise_C is a relative self-heating proxy: it runs on Chen2020's single-stack
 cooling geometry, so its absolute value is not the configured pouch's temperature.
@@ -109,13 +113,17 @@ def evaluate_design(cell, spec_c_rate):
         rate_capability = cap_rate / cap_ref
         mean_v = float(np.trapezoid(volt_s, cap_s) / (cap_s[-1] - cap_s[0]))
 
-        # Temperature at a fixed DoD, not the cutoff-truncated peak.
+        # Temperature at a fixed DoD, not the cutoff-truncated peak. If the design
+        # dies before the checkpoint (poor rate), its peak temp is not comparable to
+        # designs measured at the checkpoint, so report it as inf (non-comparable)
+        # rather than a misleadingly-low truncated value. Such designs already fail
+        # the rate constraint, so this only hardens the infeasible region.
         checkpoint = TEMP_CHECKPOINT_FRACTION * cap_ref
         if cap_s[-1] >= checkpoint:
             temp_rise = float(np.interp(checkpoint, cap_s, temp_s)) - constants.AMBIENT_K
             reached = True
         else:
-            temp_rise = float(temp_s.max()) - constants.AMBIENT_K
+            temp_rise = float("inf")
             reached = False
 
         return SimMetrics(rate_capability, temp_rise, mean_v, reached, ok=True)

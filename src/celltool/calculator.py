@@ -64,8 +64,11 @@ def balance_anode(cell):
 
 def realize_design(base_cell, overrides):
     """Apply design overrides, then co-balance the anode. The single design
-    pipeline both the calculator and the simulator consume, so they always
-    describe the same cell."""
+    pipeline both the calculator and the simulator consume, so both layers share
+    the same GEOMETRY (thickness, porosity, area, co-balanced anode). Absolute
+    capacity, energy and the quoted N/P are the calculator's; the DFN provides only
+    a directional rate ranking on Chen2020 electrochemistry mapped onto this
+    geometry, and its internal electrode balance is not the quoted N/P."""
     return balance_anode(config.with_overrides(base_cell, overrides))
 
 

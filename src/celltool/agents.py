@@ -29,6 +29,7 @@ def strategy(spec):
     weights, and budget. Stub: scale the evaluation budget with how demanding the
     rate requirement is (tighter rate -> harder search -> more evaluations).
     """
+    assert "targets" in spec and "spec_c_rate" in spec, "spec missing required fields"
     demanding = spec["targets"]["min_rate_capability"] >= 0.5 or spec["spec_c_rate"] >= 3.0
     return {
         "n_calls": 30 if demanding else 20,
@@ -37,21 +38,29 @@ def strategy(spec):
     }
 
 
-def analysis(evaluations, plateau_window=8):
-    """SEAM (analysis agent). Contract: ranked evaluations -> stop/continue verdict.
+def analysis(evaluations_by_trial, plateau_window=8, min_rel_gain=0.01):
+    """SEAM (analysis agent). Contract: TRIAL-ORDERED evaluations -> stop/continue verdict.
 
     LLM version: read the round's metrics and judge whether designs are still
-    meaningfully improving, returning a bounded decision. Stub: declare converged
-    when the best score has not improved within the last `plateau_window` trials.
+    meaningfully improving. Stub: declare converged when the running-best score has
+    not improved by more than min_rel_gain (relative) across the last plateau_window
+    trials. Requires trial order (not score-sorted) to see the improvement curve.
     """
-    scores_in_order = [r.score for _, r in evaluations]  # NOTE: evaluations are score-sorted
-    best = max(scores_in_order) if scores_in_order else float("-inf")
-    converged = len(evaluations) >= plateau_window
+    assert isinstance(evaluations_by_trial, list), "analysis expects a list of (overrides, result)"
+    scores = [r.score for _, r in evaluations_by_trial]
+    best = max(scores) if scores else float("-inf")
+    converged = False
+    if len(scores) >= plateau_window + 1:
+        prior_best = max(scores[:-plateau_window])
+        recent_best = max(scores)
+        denom = abs(prior_best) if prior_best else 1.0
+        converged = (recent_best - prior_best) / denom <= min_rel_gain
     return {
         "converged": converged,
         "best_score": best,
-        "n_evaluated": len(evaluations),
-        "message": "search budget spent; reporting best designs" if converged else "still improving",
+        "n_evaluated": len(scores),
+        "message": "improvement flattened; reporting best designs" if converged
+                   else "still improving; budget allows more search",
     }
 
 
@@ -62,9 +71,11 @@ def report_summary(opt_result, spec):
     wins). Stub: a templated one-paragraph summary from the numbers.
     """
     b = opt_result.best_result.metrics
-    feas = "feasible" if opt_result.best_result.feasible else "INFEASIBLE (closest)"
+    lead = ("Recommended (a representative energy-max design on the feasible frontier)"
+            if opt_result.best_result.feasible
+            else "NO FEASIBLE DESIGN FOUND; closest is")
     return (
-        f"Best design is {feas}: {b.get('specific_energy_Wh_kg', 0):.0f} Wh/kg, "
+        f"{lead}: {b.get('specific_energy_Wh_kg', 0):.0f} Wh/kg, "
         f"{b.get('capacity_Ah', 0):.1f} Ah, rate capability {b.get('rate_capability', 0):.2f} at "
         f"{spec['spec_c_rate']}C, temp rise {b.get('temp_rise_C', 0):.0f} C (directional). "
         f"{opt_result.n_feasible} of {len(opt_result.evaluations)} evaluated designs met all targets."

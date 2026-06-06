@@ -25,12 +25,27 @@ def test_strategy_returns_budget_contract():
     assert s["n_calls"] >= s["n_initial"] > 0
 
 
-def test_analysis_verdict_contract():
-    evals = [({"x": i}, objective.ObjResult(score=float(i), feasible=True)) for i in range(10)]
-    v = agents.analysis(evals)
+def _evals(scores):
+    return [({"x": i}, objective.ObjResult(score=float(s), feasible=True)) for i, s in enumerate(scores)]
+
+
+def test_analysis_verdict_contract_and_improving_not_converged():
+    v = agents.analysis(_evals(range(12)))  # strictly rising
     assert set(["converged", "best_score", "n_evaluated", "message"]).issubset(v)
-    assert v["best_score"] == 9.0
-    assert v["n_evaluated"] == 10
+    assert v["best_score"] == 11.0
+    assert v["n_evaluated"] == 12
+    assert v["converged"] is False
+
+
+def test_analysis_detects_plateau():
+    # best (5) is reached before the last plateau_window trials, then flat
+    v = agents.analysis(_evals(list(range(6)) + [5.0] * 8), plateau_window=8)
+    assert v["converged"] is True
+
+
+def test_analysis_short_history_not_converged():
+    v = agents.analysis(_evals([0, 1, 2]))
+    assert v["converged"] is False
 
 
 def test_report_summary_is_string_with_numbers():

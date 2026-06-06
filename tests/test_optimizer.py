@@ -30,7 +30,21 @@ def test_optimizer_converges_to_known_optimum():
 def test_history_and_ranking_recorded():
     res = optimizer.optimize(CELL, PLATFORM, RFQ, n_calls=15, n_initial=6, seed=1, eval_fn=_fake_eval)
     assert len(res.evaluations) == 15
-    # evaluations sorted best-first
-    scores = [r.score for _, r in res.evaluations]
-    assert scores == sorted(scores, reverse=True)
-    assert res.best_result.score == scores[0]
+    assert len(res.evaluations_by_trial) == 15
+    # evaluations sorted feasibility-first, then by score
+    keys = [(r.feasible, r.score) for _, r in res.evaluations]
+    assert keys == sorted(keys, reverse=True)
+
+
+def test_budget_clamped_not_raised():
+    # inverted budget must be clamped, not crash skopt
+    res = optimizer.optimize(CELL, PLATFORM, RFQ, n_calls=5, n_initial=20, seed=0, eval_fn=_fake_eval)
+    assert len(res.evaluations) == 5
+
+
+def test_optimizer_returns_feasible_on_real_objective():
+    # Slow (~12 DFN-backed evals): the RFQ feasible region is non-empty, so the
+    # winner must be feasible, and its energy must beat the min target.
+    res = optimizer.optimize(CELL, PLATFORM, RFQ, n_calls=12, n_initial=6, seed=0)
+    assert res.best_result.feasible
+    assert res.best_result.metrics["specific_energy_Wh_kg"] >= RFQ["targets"]["min_specific_energy_Wh_kg"]

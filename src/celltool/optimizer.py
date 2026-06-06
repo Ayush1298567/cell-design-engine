@@ -22,12 +22,15 @@ from . import calculator, objective
 class OptResult:
     best_overrides: dict
     best_result: object                       # ObjResult for the winner
-    evaluations: list = field(default_factory=list)  # (overrides, ObjResult), score-sorted
+    evaluations: list = field(default_factory=list)           # (overrides, ObjResult), score-sorted
+    evaluations_by_trial: list = field(default_factory=list)  # same, in evaluation order
     n_feasible: int = 0
 
 
 def optimize(base_cell, platform, rfq, n_calls=30, n_initial=8, seed=0, eval_fn=objective.evaluate):
     """Search platform.design_variables to maximize the objective score."""
+    n_calls = max(1, n_calls)
+    n_initial = max(1, min(n_initial, n_calls))  # skopt requires n_initial <= n_calls
     dv = platform["design_variables"]
     names = list(dv.keys())
     space = [Real(dv[n]["min"], dv[n]["max"], name=n) for n in names]
@@ -41,15 +44,10 @@ def optimize(base_cell, platform, rfq, n_calls=30, n_initial=8, seed=0, eval_fn=
         history.append((overrides, result))
         return -result.score  # gp_minimize minimizes
 
-    gp_minimize(
-        negative_score,
-        space,
-        n_calls=n_calls,
-        n_initial_points=n_initial,
-        random_state=seed,
-    )
+    gp_minimize(negative_score, space, n_calls=n_calls, n_initial_points=n_initial, random_state=seed)
 
-    evaluations = sorted(history, key=lambda hr: hr[1].score, reverse=True)
+    # Feasibility-first, then score: documents intent and holds even if scoring changes.
+    evaluations = sorted(history, key=lambda hr: (hr[1].feasible, hr[1].score), reverse=True)
     best_overrides, best_result = evaluations[0]
     n_feasible = sum(1 for _, r in evaluations if r.feasible)
-    return OptResult(best_overrides, best_result, evaluations, n_feasible)
+    return OptResult(best_overrides, best_result, evaluations, list(history), n_feasible)

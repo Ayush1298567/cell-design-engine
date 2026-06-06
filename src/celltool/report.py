@@ -15,7 +15,7 @@ import numpy as np
 from . import calculator, objective
 
 
-def evaluate_grid(base_cell, platform, rfq, n_thk=9, n_por=7, progress=False):
+def evaluate_grid(base_cell, platform, rfq, n_thk=15, n_por=13, progress=False):
     """Evaluate a dense grid of designs for the landscape map (heavy: runs the DFN)."""
     dv = platform["design_variables"]
     thks = np.linspace(dv["cathode.thickness_um"]["min"], dv["cathode.thickness_um"]["max"], n_thk)
@@ -41,32 +41,43 @@ def evaluate_grid(base_cell, platform, rfq, n_thk=9, n_por=7, progress=False):
     return {"thks": thks, "pors": pors, "specific_energy": se, "score": score, "feasible": feasible}
 
 
-def render_heatmap(grid, opt_result, out_path):
+def render_heatmap(grid, opt_result, rfq, out_path):
     thks, pors = grid["thks"], grid["pors"]
+    feas = grid["feasible"].astype(float)
     extent = [thks.min(), thks.max(), pors.min(), pors.max()]
+    bx = opt_result.best_overrides["cathode.thickness_um"]
+    by = opt_result.best_overrides["cathode.porosity"]
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
 
     im1 = ax1.imshow(grid["specific_energy"], origin="lower", aspect="auto", extent=extent, cmap="viridis")
-    ax1.contour(thks, pors, grid["feasible"].astype(float), levels=[0.5], colors="white", linewidths=2)
-    ax1.set_title("Specific energy [Wh/kg] (tier-1)\nwhite = feasible-region boundary")
+    ax1.set_title("Specific energy [Wh/kg] (tier-1)\nwhite = feasible boundary, star = recommended")
     fig.colorbar(im1, ax=ax1)
 
-    im2 = ax2.imshow(grid["score"], origin="lower", aspect="auto", extent=extent, cmap="magma")
-    # overlay optimizer sampled points and the winner
+    # Score panel: mask infeasible cells so the deep penalty band does not read as
+    # a smooth landscape; only the feasible region is colored.
+    score_masked = np.where(grid["feasible"], grid["score"], np.nan)
+    im2 = ax2.imshow(score_masked, origin="lower", aspect="auto", extent=extent, cmap="magma")
     xs = [o["cathode.thickness_um"] for o, _ in opt_result.evaluations]
     ys = [o["cathode.porosity"] for o, _ in opt_result.evaluations]
-    ax2.scatter(xs, ys, s=18, c="cyan", alpha=0.7, label="optimizer samples")
-    bx = opt_result.best_overrides["cathode.thickness_um"]
-    by = opt_result.best_overrides["cathode.porosity"]
-    ax2.scatter([bx], [by], s=220, marker="*", c="white", edgecolors="black", label="best", zorder=5)
-    ax2.set_title("Objective score with optimizer path")
+    ax2.scatter(xs, ys, s=16, c="cyan", alpha=0.7, label="optimizer samples")
+    ax2.set_title("Objective score (feasible only) with optimizer path")
+
+    for ax in (ax1, ax2):
+        ax.contour(thks, pors, feas, levels=[0.5], colors="white", linewidths=2)
+        ax.scatter([bx], [by], s=220, marker="*", c="white", edgecolors="black", label="recommended", zorder=5)
+        ax.set_xlabel("Cathode thickness [um]")
+        ax.set_ylabel("Cathode porosity")
     ax2.legend(loc="upper right")
     fig.colorbar(im2, ax=ax2)
 
-    for ax in (ax1, ax2):
-        ax.set_xlabel("Cathode thickness [um]")
-        ax.set_ylabel("Cathode porosity")
-    fig.tight_layout()
+    best = opt_result.best_result.metrics
+    t = rfq["targets"]
+    fig.text(0.5, 0.005,
+             f"Recommended design is constraint-binding: rate {best.get('rate_capability', 0):.2f} "
+             f"(floor {t['min_rate_capability']:.2f}), temp rise {best.get('temp_rise_C', 0):.0f} C "
+             f"(limit {t['max_temp_rise_C']:.0f}, directional). The brightest energy cells lie OUTSIDE "
+             f"the feasible boundary.", ha="center", fontsize=9)
+    fig.tight_layout(rect=[0, 0.04, 1, 1])
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     fig.savefig(out_path, dpi=130)
     return out_path
@@ -101,12 +112,16 @@ def write_report(run_result, summary, heatmap_path, out_path, top_n=5):
                  f"Search: {run_result.strategy['n_calls']} evaluations "
                  f"({run_result.strategy['rationale']}).\n")
     lines.append(f"\n{summary}\n")
-    lines.append("\n## Ranked designs (distinct feasible alternatives)\n")
+    ranked = distinct_designs(opt.evaluations, k=top_n)
+    if ranked:
+        lines.append("\n## Ranked designs (distinct feasible alternatives)\n")
+    else:
+        ranked = opt.evaluations[:top_n]
+        lines.append("\n## Closest designs (NO FEASIBLE DESIGN FOUND)\n")
     lines.append("Tier-1 (quote-grade): specific energy, capacity, energy density. "
                  "Tier-3 (directional): rate capability, temp rise.\n")
     lines.append("\n| # | cath um | porosity | Wh/kg | Ah | Wh/L | rate | dT C | feasible |")
     lines.append("|--:|--:|--:|--:|--:|--:|--:|--:|:--:|")
-    ranked = distinct_designs(opt.evaluations, k=top_n) or opt.evaluations[:top_n]
     for idx, (ov, r) in enumerate(ranked, 1):
         m = r.metrics
         lines.append(
@@ -115,10 +130,15 @@ def write_report(run_result, summary, heatmap_path, out_path, top_n=5):
             f"{m.get('energy_density_Wh_L', 0):.0f} | {m.get('rate_capability', 0):.2f} | "
             f"{m.get('temp_rise_C', 0):.0f} | {'yes' if r.feasible else 'no'} |"
         )
-    lines.append(f"\n{opt.n_feasible} of {len(opt.evaluations)} evaluated designs were feasible.\n")
+    lines.append(f"\n{opt.n_feasible} of {len(opt.evaluations)} evaluated designs were feasible. "
+                 "The winner is one representative energy-max design on the feasible frontier; "
+                 "the rows above are distinct alternatives trading energy for rate/thermal margin.\n")
     lines.append(f"\n![design space]({os.path.basename(heatmap_path)})\n")
-    lines.append("\n_Tier-3 numbers are directional (uncalibrated literature DFN); "
-                 "calibration on IBC test data is what makes them design-guidance grade._\n")
+    lines.append("\n_Tier-1 (specific energy, capacity, energy density) is quote-grade calculator "
+                 "algebra. Tier-3 (rate capability, temp rise, and the feasibility gate on them) is a "
+                 "directional ranking from an uncalibrated literature DFN (Chen2020 chemistry on this "
+                 "geometry); the DFN's internal electrode balance is not the quoted N/P. Calibration on "
+                 "IBC test data is what makes the tier-3 numbers design-guidance grade._\n")
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:

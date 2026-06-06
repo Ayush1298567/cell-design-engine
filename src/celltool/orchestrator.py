@@ -19,16 +19,42 @@ class RunResult:
     verdict: dict
 
 
+N_CALLS_CAP = 200
+
+
+def _validate_strategy(strat):
+    """Validate the strategy seam's output before obeying it (the 'rejected and
+    retried, never obeyed' contract). A malformed budget falls back to a safe
+    default; an inverted/oversized budget is clamped, never executed raw."""
+    n_calls = strat.get("n_calls")
+    n_initial = strat.get("n_initial")
+    if not (isinstance(n_calls, int) and isinstance(n_initial, int)):
+        return {"n_calls": 30, "n_initial": 8}
+    n_calls = max(1, min(n_calls, N_CALLS_CAP))
+    n_initial = max(1, min(n_initial, n_calls))
+    return {"n_calls": n_calls, "n_initial": n_initial}
+
+
+def _validate_verdict(verdict):
+    """Ensure the analysis seam returned the expected shape; fall back if not."""
+    required = {"converged", "best_score", "n_evaluated", "message"}
+    if not isinstance(verdict, dict) or not required.issubset(verdict):
+        return {"converged": False, "best_score": float("nan"), "n_evaluated": 0,
+                "message": "analysis verdict rejected (bad shape); defaulting to continue"}
+    return verdict
+
+
 def run(cell_path="configs/cell.yaml", platform_path="configs/platform.yaml", rfq_path="configs/rfq.yaml", seed=0):
     base_cell = config.load_config(cell_path)
     platform = config.load_config(platform_path)
     rfq_raw = config.load_config(rfq_path)
 
-    spec = agents.intake(rfq_raw)                       # seam
-    strat = agents.strategy(spec)                       # seam
+    spec = agents.intake(rfq_raw)                          # seam (validated inside)
+    strat = agents.strategy(spec)                          # seam
+    budget = _validate_strategy(strat)                     # reject/clamp before obeying
     opt = optimizer.optimize(
         base_cell, platform, spec,
-        n_calls=strat["n_calls"], n_initial=strat["n_initial"], seed=seed,
+        n_calls=budget["n_calls"], n_initial=budget["n_initial"], seed=seed,
     )
-    verdict = agents.analysis(opt.evaluations)          # seam
+    verdict = _validate_verdict(agents.analysis(opt.evaluations_by_trial))  # seam, validated
     return RunResult(spec=spec, strategy=strat, opt=opt, verdict=verdict)

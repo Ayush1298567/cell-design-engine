@@ -9,9 +9,10 @@ spec_c_rate: 3.0                  # peak discharge stress (e.g. takeoff)
 targets:
   min_specific_energy_Wh_kg: 240  # tier-1 quote-grade (calculator)
   min_rate_capability: 0.50       # tier-3 directional: keep >=50% capacity at peak rate
-  max_temp_rise_C: 45             # tier-3 DIRECTIONAL self-heating proxy (single-stack
-                                  # cooling, not a calibrated pouch temperature); ranks
-                                  # designs, absolute value pending a pack thermal model
+  max_temp_rise_C: 45             # self-heating RISE budget (NOT the 45C field ambient in
+                                  # THE_IDEA -- coincidental). tier-3 DIRECTIONAL proxy on
+                                  # single-stack cooling; ranks designs, absolute value
+                                  # pending a pack thermal model
 
 # The optimizer maximizes this tier-1 (quote-grade) metric among designs that meet
 # the targets above. Rate and temp are constraints, not objectives: a drone wants

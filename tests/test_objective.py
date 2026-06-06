@@ -39,6 +39,31 @@ def test_infeasible_scores_below_feasible():
     assert infeasible.score < feasible.score
 
 
+def test_near_boundary_infeasible_still_below_feasible():
+    # The realistic inversion: high energy but misses a constraint by a hair.
+    feasible = objective.score_from_metrics(260, 0.60, 40, True, RFQ)
+    infeasible = objective.score_from_metrics(290, 0.60, 45.5, True, RFQ)  # +30 Wh/kg, temp over by 0.5
+    assert not infeasible.feasible
+    assert infeasible.score < feasible.score
+
+
+def test_feasibility_gate_property():
+    # No infeasible design may ever outrank a feasible one, anywhere in the space.
+    feas, infeas = [], []
+    for se in (240, 260, 290, 320):
+        for rate in (0.50, 0.70, 0.95):
+            for temp in (10, 30, 45):
+                r = objective.score_from_metrics(se, rate, temp, True, RFQ)
+                (feas if r.feasible else infeas).append(r.score)
+    for se in (200, 239, 320):           # guaranteed infeasible cases
+        for rate in (0.30, 0.49):
+            for temp in (50, 70):
+                r = objective.score_from_metrics(se, rate, temp, True, RFQ)
+                (feas if r.feasible else infeas).append(r.score)
+    assert feas and infeas
+    assert min(feas) > max(infeas)
+
+
 def test_evaluate_runs_end_to_end():
     cell = calculator.realize_design(CELL, {"cathode.thickness_um": 65, "cathode.porosity": 0.35})
     r = objective.evaluate(cell, RFQ)

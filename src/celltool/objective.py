@@ -1,24 +1,30 @@
 """Objective function: the contract between the metrics and the optimizer.
 
 Turns a design into a single scalar score (higher is better) plus a feasibility
-flag and the trust-tiered metrics. The optimizer MAXIMIZES the application's
-objective metric (the tier-1 quote-grade specific energy, for a drone) subject to
-the rate and temperature targets as constraints. Constraints are handled as a soft
-penalty, so the optimizer can climb toward feasibility from an infeasible start,
-and among feasible designs the score is just the objective metric.
+flag and the trust-tiered metrics. Ranking is lexicographic:
 
-This keeps trust tiers clean (CLAUDE.md rule 5): the RANKING is driven by the
-tier-1 number; the tier-3 directional numbers (rate, temp) only gate feasibility,
-they never inflate the score. There is no reward for exceeding a constraint, which
-would otherwise trade away the primary goal.
+  feasible designs   -> score = tier-1 specific energy (ranked purely by energy)
+  infeasible designs -> score = energy - INFEASIBLE_OFFSET - PENALTY*violations
+  non-viable sims    -> NON_VIABLE_SCORE
+
+The fixed INFEASIBLE_OFFSET guarantees no infeasible design can ever outrank a
+feasible one (a tiny constraint miss still drops below every feasible design); the
+relative PENALTY only provides a gradient WITHIN the infeasible region so the GP
+can still climb toward the feasible boundary from an infeasible start.
+
+This keeps trust tiers clean (CLAUDE.md rule 5): the ranking among feasible designs
+is driven by the tier-1 number; the tier-3 directional numbers (rate, temp) only
+gate feasibility, they never inflate the score.
 """
 
+import math
 from dataclasses import dataclass, field
 
 from . import calculator, simulator
 
-PENALTY = 1000.0         # per-unit-violation penalty, large vs the Wh/kg objective
-NON_VIABLE_SCORE = -1e9  # designs the solver cannot evaluate
+PENALTY = 1000.0           # gradient within the infeasible region only
+INFEASIBLE_OFFSET = 1e6    # fixed drop so any infeasible design < every feasible one
+NON_VIABLE_SCORE = -1e9    # designs the solver cannot evaluate (below infeasible band)
 
 
 @dataclass
@@ -46,12 +52,20 @@ def score_from_metrics(specific_energy_Wh_kg, rate_capability, temp_rise_C, ok, 
         violations["specific_energy"] = (t["min_specific_energy_Wh_kg"] - specific_energy_Wh_kg) / t["min_specific_energy_Wh_kg"]
     if rate_capability < t["min_rate_capability"]:
         violations["rate_capability"] = (t["min_rate_capability"] - rate_capability) / t["min_rate_capability"]
-    if temp_rise_C > t["max_temp_rise_C"]:
+    if not math.isfinite(temp_rise_C):
+        # design died before the thermal checkpoint (already fails rate): a full,
+        # FINITE temp miss, so the score stays finite for the GP optimizer.
+        violations["temp_rise"] = 1.0
+    elif temp_rise_C > t["max_temp_rise_C"]:
         violations["temp_rise"] = (temp_rise_C - t["max_temp_rise_C"]) / t["max_temp_rise_C"]
 
-    # Maximize the objective metric; subtract a penalty for any constraint miss so
-    # the optimizer is pulled toward feasibility. No reward for exceeding a target.
-    score = specific_energy_Wh_kg - PENALTY * sum(violations.values())
+    # Lexicographic: feasible designs ranked by energy; infeasible designs sit a
+    # fixed offset below the entire feasible band (with a relative gradient so the
+    # optimizer can still climb toward feasibility). No reward for exceeding a target.
+    if violations:
+        score = specific_energy_Wh_kg - INFEASIBLE_OFFSET - PENALTY * sum(violations.values())
+    else:
+        score = specific_energy_Wh_kg
     return ObjResult(score, len(violations) == 0, metrics, violations)
 
 
