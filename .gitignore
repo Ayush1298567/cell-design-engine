@@ -33,3 +33,4 @@ chroma/
 # IDE
 .idea/
 .vscode/
+.gstack/
