@@ -256,7 +256,11 @@ charge; airborne use implies vibration and weight sensitivity. Its output is
 a structured specification: cell-level targets plus a test protocol that
 mirrors the real duty cycle (takeoff, climb, cruise, land, at the right
 currents and durations), so every simulation downstream is judged against
-the customer's actual life, not a generic lab test.
+the customer's actual life, not a generic lab test. Before the autonomous run
+begins, an IBC engineer reviews and approves this structured spec: a
+human-in-the-loop gate that catches a misread requirement before any compute is
+spent and keeps a person accountable for what the run optimizes. The
+"autonomous" part is everything after this approval, not the requirements.
 
 **Step 3. Platform matcher.** Before any optimization, the spec is matched
 against IBC's platform families and the library of heritage designs. A

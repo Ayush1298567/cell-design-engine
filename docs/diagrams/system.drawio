@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="System architecture" id="cde-arch">
+    <mxGraphModel dx="1100" dy="760" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="lbl_people" value="PEOPLE" style="text;html=1;align=left;fontSize=11;fontColor=#B85C4C;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="40" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="rfq" value="Customer RFQ&#10;application + targets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F0F0;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="40" y="64" width="240" height="70" as="geometry" /></mxCell>
+        <mxCell id="review" value="Engineer reviews the spec&#10;(human-in-the-loop: approve before the run)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDE9E6;strokeColor=#FF5A69;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="320" y="64" width="280" height="70" as="geometry" /></mxCell>
+        <mxCell id="build" value="Engineers build &amp; test&#10;the top designs (core work, unchanged)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F0F0;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="640" y="64" width="260" height="70" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_agents" value="LLM AGENTS  ·  bounded judgment, validated JSON (orchestrates, does not do the science)" style="text;html=1;align=left;fontSize=11;fontColor=#B85C4C;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="170" width="900" height="20" as="geometry" /></mxCell>
+        <mxCell id="intake" value="Intake&#10;requirement → spec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8D8;strokeColor=#E0853F;" vertex="1" parent="1"><mxGeometry x="40" y="194" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="strategy" value="Strategy&#10;search plan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8D8;strokeColor=#E0853F;" vertex="1" parent="1"><mxGeometry x="225" y="194" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="analysis" value="Analysis&#10;progress / stop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8D8;strokeColor=#E0853F;" vertex="1" parent="1"><mxGeometry x="410" y="194" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="evaluation" value="Evaluation&#10;cost, safety, mfg" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8D8;strokeColor=#E0853F;" vertex="1" parent="1"><mxGeometry x="595" y="194" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="report" value="Report&#10;ranked write-up" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE8D8;strokeColor=#E0853F;" vertex="1" parent="1"><mxGeometry x="780" y="194" width="170" height="64" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_orch" value="ORCHESTRATOR" style="text;html=1;align=left;fontSize=11;fontColor=#B85C4C;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="290" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="orch" value="Deterministic state machine — runs the pipeline, validates every agent answer, rejects out-of-bounds ones" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="40" y="314" width="910" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_tools" value="TOOLS  ·  the math and physics" style="text;html=1;align=left;fontSize=11;fontColor=#B85C4C;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="406" width="300" height="20" as="geometry" /></mxCell>
+        <mxCell id="valid" value="Validation gate&#10;screen candidates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="40" y="430" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="opt" value="Bayesian optimizer&#10;picks next design" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="225" y="430" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="calc" value="Cell calculator&#10;tier-1 quote-grade" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="410" y="430" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="dfn" value="DFN simulation&#10;tier-3 directional" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="595" y="430" width="170" height="64" as="geometry" /></mxCell>
+        <mxCell id="obj" value="Objective + scoring&#10;feasible? rank" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF1F5;strokeColor=#5B6A7A;" vertex="1" parent="1"><mxGeometry x="780" y="430" width="170" height="64" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_data" value="KNOWLEDGE &amp; CALIBRATION" style="text;html=1;align=left;fontSize=11;fontColor=#B85C4C;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="526" width="300" height="20" as="geometry" /></mxCell>
+        <mxCell id="kb" value="Knowledge base — retrieval grounds the agents in real data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F0F5;strokeColor=#7A6F7C;" vertex="1" parent="1"><mxGeometry x="40" y="550" width="440" height="60" as="geometry" /></mxCell>
+        <mxCell id="cal" value="Calibration loop — test data refits the DFN to IBC's own cells (the moat)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDE9E6;strokeColor=#FF5A69;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="510" y="550" width="440" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="rfq" target="review"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" value="approved" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;" edge="1" parent="1" source="review" target="orch"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" parent="1" source="orch" target="strategy"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="orch" target="opt"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="opt" target="valid"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="valid" target="calc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="valid" target="dfn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="calc" target="obj"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="dfn" target="obj"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" value="next trial" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;" edge="1" parent="1" source="obj" target="opt"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" parent="1" source="orch" target="report"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="report" target="build"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" value="test data" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;" edge="1" parent="1" source="build" target="cal"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="cal" target="dfn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" value="grounds" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;fontSize=10;" edge="1" parent="1" source="kb" target="strategy"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
