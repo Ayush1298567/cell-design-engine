@@ -1,16 +1,18 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { Background } from "../components/Background";
 import { FadeUp } from "../components/FadeUp";
-import { colors, fonts } from "../theme";
+import { Eyebrow } from "../components/Eyebrow";
+import { Panel } from "../components/Panel";
+import { colors, fonts, tokens } from "../theme";
 import { Heatmap, Dot, Winner, Plot } from "../components/Heatmap";
 import data from "../demo_data.json";
 
-const PLOT: Plot = { x: 150, y: 330, w: 690, h: 540 };
+const PLOT: Plot = { x: 160, y: 372, w: 660, h: 500 };
 const DOT_START = 120;
 const PER_DOT = 14;
 const N = data.trajectory.length;
-const SEARCH_END = DOT_START + N * PER_DOT; // ~540
+const SEARCH_END = DOT_START + N * PER_DOT;
 const STAR = SEARCH_END + 6;
 
 const stages = [
@@ -22,22 +24,36 @@ const stages = [
 ];
 const REPORT_DONE = SEARCH_END + 110;
 
-const StagePill: React.FC<{ name: string; status: "pending" | "active" | "done" }> = ({ name, status }) => {
+type Status = "pending" | "active" | "done";
+
+const StepDot: React.FC<{ status: Status }> = ({ status }) => {
   const frame = useCurrentFrame();
-  const pulse = status === "active" ? 0.5 + 0.5 * Math.abs(Math.sin(frame / 8)) : 1;
-  const border = status === "done" ? colors.green : status === "active" ? colors.coral : colors.panelLine;
-  const text = status === "pending" ? colors.dim : colors.text;
-  return (
-    <div style={{ flex: 1, textAlign: "center" }}>
-      <div style={{ display: "inline-block", background: colors.panel, border: `2px solid ${border}`, borderRadius: 10, padding: "14px 20px", minWidth: 200, opacity: status === "active" ? pulse : 1, boxShadow: status === "active" ? `0 0 18px ${colors.coral}55` : "none" }}>
-        <span style={{ fontSize: 28, color: text, fontFamily: fonts.sans }}>
-          {status === "done" ? "✓ " : ""}
-          {name}
-        </span>
-      </div>
-    </div>
-  );
+  if (status === "done") return <div style={{ width: 14, height: 14, borderRadius: "50%", background: colors.coral }} />;
+  if (status === "active") {
+    const pulse = 0.45 + 0.55 * Math.abs(Math.sin(frame / 9));
+    return <div style={{ width: 14, height: 14, borderRadius: "50%", border: `2px solid ${colors.coral}`, boxShadow: `0 0 ${10 * pulse}px ${colors.coral}` }} />;
+  }
+  return <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.20)" }} />;
 };
+
+const Stepper: React.FC<{ statusOf: (s: typeof stages[number]) => Status }> = ({ statusOf }) => (
+  <div style={{ position: "absolute", left: tokens.safeX, right: tokens.safeX, top: 224, height: 70 }}>
+    <div style={{ position: "absolute", left: "10%", right: "10%", top: 6, height: 1, background: colors.hairline }} />
+    <div style={{ display: "flex" }}>
+      {stages.map((s) => {
+        const st = statusOf(s);
+        return (
+          <div key={s.name} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <StepDot status={st} />
+            <div style={{ marginTop: 16, fontFamily: fonts.mono, fontSize: 16, letterSpacing: "0.18em", textTransform: "uppercase", color: st === "pending" ? colors.faint : colors.text }}>
+              {s.name}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
 
 export const Run: React.FC = () => {
   const frame = useCurrentFrame();
@@ -47,64 +63,59 @@ export const Run: React.FC = () => {
     const d = data.trajectory[k];
     if (d.feasible && d.specific_energy && d.specific_energy > best) best = d.specific_energy;
   }
-
-  const statusOf = (s: typeof stages[number]): "pending" | "active" | "done" =>
-    frame >= s.end ? "done" : frame >= s.start ? "active" : "pending";
+  const statusOf = (s: typeof stages[number]): Status => (frame >= s.end ? "done" : frame >= s.start ? "active" : "pending");
   const active = stages.find((s) => statusOf(s) === "active");
-  const detail = active ? (active.name === "Search" ? `trial ${String(visible).padStart(2, "0")} / ${N}   ·   best so far ${best ? best.toFixed(0) : "..."} Wh/kg` : active.detail) : "Done.";
+  const isSearch = active?.name === "Search";
 
   return (
     <Background>
-      <FadeUp delay={2} style={{ position: "absolute", left: 150, top: 64 }}>
-        <div style={{ fontFamily: fonts.serif, fontSize: 48, fontWeight: 700 }}>
-          Step 2 &middot; the engine runs <span style={{ fontFamily: fonts.mono, fontSize: 24, color: colors.coral }}>(sped up)</span>
-        </div>
+      <FadeUp delay={2} style={{ position: "absolute", left: tokens.safeX, top: 100, display: "flex", alignItems: "center", gap: 22 }}>
+        <div style={{ fontFamily: fonts.serif, fontSize: 60, fontWeight: 600, letterSpacing: "-0.01em" }}>Step 2 &middot; the engine runs</div>
+        <div style={{ fontFamily: fonts.mono, fontSize: 16, letterSpacing: "0.18em", color: colors.coralLabel, border: `1px solid ${colors.coralBorder}`, borderRadius: 999, padding: "6px 14px" }}>SPED UP</div>
       </FadeUp>
 
-      {/* stage tracker */}
-      <div style={{ position: "absolute", left: 150, right: 100, top: 150, display: "flex", alignItems: "center" }}>
-        {stages.map((s) => (
-          <StagePill key={s.name} name={s.name} status={statusOf(s)} />
-        ))}
-      </div>
+      <Stepper statusOf={statusOf} />
 
-      {/* heatmap (the search) */}
       <AbsoluteFill>
-        <Heatmap plot={PLOT} fadeStart={70} fadeEnd={110} />
+        <Heatmap plot={PLOT} fadeStart={80} fadeEnd={120} />
         {data.trajectory.slice(0, visible).map((d, k) => (
           <Dot key={k} d={d} appear={DOT_START + k * PER_DOT} plot={PLOT} />
         ))}
         <Winner starFrame={STAR} plot={PLOT} />
-        <div style={{ position: "absolute", left: PLOT.x, top: PLOT.y + PLOT.h + 16, width: PLOT.w, textAlign: "center", color: colors.dim, fontSize: 20 }}>thicker electrode &rarr;</div>
+        <div style={{ position: "absolute", left: PLOT.x, top: PLOT.y + PLOT.h + 18, width: PLOT.w, textAlign: "center", color: colors.dim, fontSize: 20 }}>thicker electrode &rarr;</div>
       </AbsoluteFill>
 
-      {/* status panel */}
-      <div style={{ position: "absolute", left: 930, top: 340, width: 840 }}>
-        <div style={{ fontFamily: fonts.mono, letterSpacing: 5, color: colors.coral, fontSize: 20, textTransform: "uppercase" }}>
-          {active ? active.name : "Complete"}
-        </div>
-        <div style={{ fontSize: 34, color: colors.text, marginTop: 14, lineHeight: 1.4, fontFamily: active && active.name === "Search" ? fonts.mono : fonts.sans, minHeight: 100 }}>
-          {detail}
-        </div>
+      <div style={{ position: "absolute", left: 930, top: 392, width: 830 }}>
+        <Eyebrow>{active ? active.name : "Complete"}</Eyebrow>
+
+        {isSearch ? (
+          <div style={{ marginTop: 18 }}>
+            <div style={{ fontFamily: fonts.mono, fontSize: 70, fontWeight: 500, color: colors.amber }}>
+              {best ? best.toFixed(0) : "..."} <span style={{ fontSize: 34, color: colors.body }}>Wh/kg</span>
+            </div>
+            <div style={{ fontFamily: fonts.mono, fontSize: 28, color: colors.dim, marginTop: 10 }}>best so far &middot; trial {String(visible).padStart(2, "0")} / {N}</div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 34, color: colors.text, marginTop: 16, lineHeight: 1.45, minHeight: 100 }}>{active ? active.detail : "Done."}</div>
+        )}
 
         {frame >= REPORT_DONE && (
-          <FadeUp delay={REPORT_DONE + 4} style={{ marginTop: 40 }}>
-            <div style={{ background: colors.panel, border: `1px solid ${colors.coral}`, borderRadius: 14, padding: "26px 30px" }}>
-              <div style={{ fontFamily: fonts.mono, letterSpacing: 5, color: colors.coral, fontSize: 18, textTransform: "uppercase" }}>Recommended design</div>
-              <div style={{ fontSize: 46, fontFamily: fonts.serif, color: colors.amber, marginTop: 10 }}>
-                {data.best.specific_energy?.toFixed(0)} Wh/kg &middot; {data.best.capacity?.toFixed(1)} Ah
+          <FadeUp delay={REPORT_DONE + 4} style={{ marginTop: 44 }}>
+            <Panel accent style={{ padding: "30px 34px" }}>
+              <Eyebrow>Recommended design</Eyebrow>
+              <div style={{ fontFamily: fonts.mono, fontSize: 56, fontWeight: 500, color: colors.amber, marginTop: 14 }}>
+                {data.best.specific_energy?.toFixed(0)} <span style={{ color: colors.text }}>Wh/kg</span> <span style={{ color: colors.body, fontSize: 38 }}>&middot; {data.best.capacity?.toFixed(1)} Ah</span>
               </div>
-              <div style={{ fontSize: 26, color: colors.dim, marginTop: 8 }}>
+              <div style={{ fontSize: 26, color: colors.dim, marginTop: 12 }}>
                 {data.best.thickness.toFixed(0)} &micro;m cathode, {(data.best.porosity * 100).toFixed(0)}% porosity &middot; {data.ranked.length} designs ranked
               </div>
-            </div>
+            </Panel>
           </FadeUp>
         )}
-      </div>
 
-      {/* real-run grounding */}
-      <div style={{ position: "absolute", left: 150, bottom: 50, fontFamily: fonts.mono, fontSize: 22, color: colors.dim }}>
-        <span style={{ color: colors.coral }}>$ </span>python run_demo.py {frame >= REPORT_DONE ? "  ·  done" : "  ·  running pipeline..."}
+        <div style={{ position: "absolute", top: 470, fontFamily: fonts.mono, fontSize: 20, color: colors.faint }}>
+          <span style={{ color: colors.coralLabel }}>$ </span>python run_demo.py {frame >= REPORT_DONE ? "· done" : "· running..."}
+        </div>
       </div>
     </Background>
   );

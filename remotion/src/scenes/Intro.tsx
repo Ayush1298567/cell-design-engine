@@ -2,27 +2,24 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 import { Background } from "../components/Background";
 import { FadeUp } from "../components/FadeUp";
-import { colors, fonts } from "../theme";
+import { Eyebrow } from "../components/Eyebrow";
+import { colors, fonts, tokens } from "../theme";
 
 export const Intro: React.FC = () => (
   <Background>
-    <AbsoluteFill style={{ justifyContent: "center", paddingLeft: 170, paddingRight: 170 }}>
+    <div style={{ position: "absolute", right: tokens.safeX, bottom: 150, fontFamily: fonts.serif, fontSize: 240, fontWeight: 600, color: "rgba(255,255,255,0.035)", lineHeight: 1 }}>01</div>
+    <AbsoluteFill style={{ justifyContent: "center", paddingLeft: tokens.safeX, paddingRight: tokens.safeX }}>
       <FadeUp delay={4}>
-        <div style={{ fontFamily: fonts.mono, letterSpacing: 9, color: colors.coral, fontSize: 24, textTransform: "uppercase" }}>
-          What we built
-        </div>
+        <Eyebrow>What we built</Eyebrow>
       </FadeUp>
       <FadeUp delay={12}>
-        <div style={{ fontFamily: fonts.serif, fontSize: 100, fontWeight: 700, lineHeight: 1.05, marginTop: 20 }}>
-          An engine that designs
-          <br />
-          battery cells
+        <div style={{ fontFamily: fonts.serif, fontSize: 78, fontWeight: 600, lineHeight: 1.05, letterSpacing: "-0.01em", marginTop: 22, maxWidth: 1180 }}>
+          An engine that designs battery cells
         </div>
       </FadeUp>
-      <FadeUp delay={28}>
-        <div style={{ fontSize: 36, color: colors.dim, marginTop: 36, maxWidth: 1300, lineHeight: 1.5 }}>
-          You give it a requirement. It searches the possible cell designs with a physics
-          simulation and hands back the best ones to build.
+      <FadeUp delay={26}>
+        <div style={{ fontSize: 34, color: colors.body, marginTop: 28, maxWidth: 1040, lineHeight: 1.55 }}>
+          You give it a requirement. It searches the possible cell designs with a physics simulation and hands back the best ones to build.
         </div>
       </FadeUp>
     </AbsoluteFill>

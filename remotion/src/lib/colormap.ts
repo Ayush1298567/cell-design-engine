@@ -1,13 +1,12 @@
-// Viridis approximation for the energy heatmap.
+// Warm single-hue sequential scale for the energy heatmap (on-brand, not viridis).
 const stops: Array<[number, [number, number, number]]> = [
-  [0.0, [68, 1, 84]],
-  [0.25, [59, 82, 139]],
-  [0.5, [33, 145, 140]],
-  [0.75, [94, 201, 98]],
-  [1.0, [253, 231, 37]],
+  [0.0, [18, 8, 11]],
+  [0.4, [74, 40, 44]],
+  [0.72, [255, 90, 76]],
+  [1.0, [255, 157, 108]],
 ];
 
-export function viridis(t: number): [number, number, number] {
+export function heat(t: number): [number, number, number] {
   const x = Math.max(0, Math.min(1, t));
   for (let i = 0; i < stops.length - 1; i++) {
     const [a, ca] = stops[i];
@@ -21,7 +20,7 @@ export function viridis(t: number): [number, number, number] {
       ];
     }
   }
-  return [253, 231, 37];
+  return [255, 157, 108];
 }
 
 export function rgb([r, g, b]: [number, number, number], alpha = 1): string {
