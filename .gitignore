@@ -34,3 +34,5 @@ chroma/
 .idea/
 .vscode/
 .gstack/
+deck/slides_filled.html
+deck/video_boxes.json

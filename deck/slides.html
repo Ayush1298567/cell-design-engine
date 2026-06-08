@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #16203a;        /* navy headers */
+    --body: #3c4658;       /* body text */
+    --dim: #8a93a3;        /* muted */
+    --accent: #2e6fb7;     /* blue accent */
+    --accent2: #c2603a;    /* secondary (warm), used sparingly */
+    --line: #e4e7ee;
+    --bg: #ffffff;
+    --panel: #f6f8fb;
+    --sans: "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", Menlo, Consolas, monospace;
+  }
+  body { background: #555; }
+  .slide {
+    width: 1280px; height: 720px; background: var(--bg); color: var(--body);
+    font-family: var(--sans); position: relative; overflow: hidden;
+    padding: 70px 84px 64px; margin: 0 auto 20px;
+  }
+  .eyebrow { color: var(--accent); font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; }
+  h2 { color: var(--ink); font-size: 42px; font-weight: 700; line-height: 1.05; margin-top: 12px; letter-spacing: -0.01em; }
+  .lead { font-size: 21px; color: var(--body); line-height: 1.55; max-width: 920px; margin-top: 18px; }
+  .rule { width: 64px; height: 4px; background: var(--accent); margin: 22px 0; }
+  ul { margin-top: 18px; list-style: none; }
+  li { font-size: 20px; color: var(--body); line-height: 1.5; margin-bottom: 14px; padding-left: 26px; position: relative; max-width: 1000px; }
+  li:before { content: ""; position: absolute; left: 0; top: 11px; width: 8px; height: 8px; background: var(--accent); border-radius: 2px; }
+  b, strong { color: var(--ink); }
+  .foot { position: absolute; left: 84px; right: 84px; bottom: 30px; display: flex; justify-content: space-between;
+          border-top: 1px solid var(--line); padding-top: 12px; color: var(--dim); font-size: 13px; letter-spacing: 0.04em; }
+  .foot .org { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; }
+  .topmark { position: absolute; top: 34px; left: 84px; display: flex; align-items: center; gap: 10px; }
+  .topmark .sq { width: 13px; height: 13px; background: var(--accent); border-radius: 3px; }
+  .topmark span { font-family: var(--mono); font-size: 13px; letter-spacing: 0.18em; color: var(--dim); text-transform: uppercase; }
+
+  /* title slide */
+  .title { padding-top: 220px; }
+  .title h1 { color: var(--ink); font-size: 72px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.02; }
+  .title .sub { font-size: 26px; color: var(--body); margin-top: 22px; }
+  .title .by { font-family: var(--mono); font-size: 16px; color: var(--dim); margin-top: 40px; letter-spacing: 0.06em; }
+
+  img.fig { display: block; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .videobox { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); display: flex;
+              flex-direction: column; align-items: center; justify-content: center; color: var(--dim); }
+  .videobox .play { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); position: relative; }
+  .videobox .play:after { content: ""; position: absolute; left: 26px; top: 19px; border-left: 18px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent; }
+  .videobox .vlabel { margin-top: 18px; font-family: var(--mono); font-size: 14px; letter-spacing: 0.1em; }
+
+  .row { display: flex; gap: 40px; }
+  .col { flex: 1; }
+  .statcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 30px 34px; }
+  .statcard .tag { font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .statcard .big { font-size: 92px; font-weight: 800; color: var(--ink); line-height: 1; margin-top: 14px; }
+  .statcard .unit { font-size: 22px; color: var(--dim); margin-top: 4px; }
+  .statcard .note { font-size: 18px; color: var(--body); margin-top: 22px; line-height: 1.45; }
+
+  table.designs { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 19px; }
+  table.designs th { text-align: right; color: var(--dim); font-weight: 600; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  table.designs td { text-align: right; padding: 12px 14px; color: var(--body); font-variant-numeric: tabular-nums; }
+  table.designs tr.win td { color: var(--ink); font-weight: 700; background: #eef4fb; }
+  table.designs td.l, table.designs th.l { text-align: left; }
+
+  .pill { display: inline-block; font-family: var(--mono); font-size: 13px; letter-spacing: 0.1em; color: var(--accent);
+          border: 1px solid #cfe0f2; background: #eef4fb; border-radius: 999px; padding: 5px 12px; text-transform: uppercase; }
+  .steps { display: flex; gap: 0; margin-top: 30px; align-items: stretch; }
+  .step { flex: 1; padding: 0 8px; position: relative; }
+  .step .n { font-family: var(--mono); color: var(--accent); font-size: 15px; }
+  .step .t { color: var(--ink); font-weight: 700; font-size: 21px; margin-top: 8px; }
+  .step .d { color: var(--body); font-size: 16px; margin-top: 8px; line-height: 1.4; }
+  .step:not(:last-child):after { content: "›"; position: absolute; right: -6px; top: 0; color: var(--accent); font-size: 26px; }
+</style>
+</head>
+<body>
+
+<!-- 1 TITLE -->
+<section class="slide title">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <h1>Custom Cell<br/>Design Engine</h1>
+  <div class="sub">Turning a cell requirement into ranked, buildable designs.</div>
+  <div class="by">Ayush Garg &nbsp;·&nbsp; June 2026</div>
+</section>
+
+<!-- 2 WHAT IT IS -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">What it is</div>
+  <h2>A requirement in, buildable designs out</h2>
+  <div class="rule"></div>
+  <div class="lead">A customer application goes in, described in plain terms: how long it has to run, how hard it has to pull, the space and weight it has to fit. The tool searches the manufacturable design space with a validated physics model and returns a short list of buildable cell designs, ranked.</div>
+  <ul>
+    <li>It does the early design exploration: which part of the design space to even look at.</li>
+    <li>Engineers review the candidates, then build and test the best ones. That work does not change.</li>
+    <li>It competes with the first guess, not the lab. The goal is fewer build-and-test loops.</li>
+  </ul>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>2</span></div>
+</section>
+
+<!-- 3 DFN VALIDATION -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">The deliverable you scoped</div>
+  <h2>The DFN, implemented and validated</h2>
+  <div class="rule"></div>
+  <div class="row">
+    <div class="col" style="flex:1.25">
+      <img class="fig" src="assets/validation.png" style="width:100%"/>
+    </div>
+    <div class="col">
+      <div class="lead" style="margin-top:0;font-size:20px">PyBaMM's DFN, validated against real LG M50 discharge data (Chen2020), at four discharge rates.</div>
+      <ul style="margin-top:20px">
+        <li>The physics shape is sound across every rate.</li>
+        <li>The main error is a near-constant offset, the kind calibration removes.</li>
+        <li>Directional today, on literature parameters. Calibration on IBC cells makes it design-grade.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>3</span></div>
+</section>
+
+<!-- 4 ARCHITECTURE -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">How it works</div>
+  <h2>The workflow</h2>
+  <div class="rule"></div>
+  <div class="steps">
+    <div class="step"><div class="n">01</div><div class="t">Requirement</div><div class="d">what the cell has to do</div></div>
+    <div class="step"><div class="n">02</div><div class="t">Optimizer</div><div class="d">picks which design to try next</div></div>
+    <div class="step"><div class="n">03</div><div class="t">Physics</div><div class="d">calculator + DFN score each design</div></div>
+    <div class="step"><div class="n">04</div><div class="t">Ranked designs</div><div class="d">the best buildable options</div></div>
+  </div>
+  <ul style="margin-top:44px">
+    <li>The optimizer and the physics do the work. It runs end to end with no expert in the loop.</li>
+    <li>The model handles the judgment, understanding the requirement and the tradeoffs. The numbers come from the physics, which is where accuracy and trust have to live.</li>
+  </ul>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>4</span></div>
+</section>
+
+<!-- 5 SEARCH (VIDEO 1) -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">Watch it run</div>
+  <h2>It searches the design space</h2>
+  <div class="rule"></div>
+  <div class="row">
+    <div class="col" style="flex:1.3">
+      <div class="videobox" id="vid-search" style="width:100%;height:420px"><div class="play"></div><div class="vlabel">optimizer search</div></div>
+    </div>
+    <div class="col">
+      <div class="lead" style="margin-top:0;font-size:20px">A Bayesian optimizer chooses each design to try, the physics scores it, and every trial is guided by the ones before.</div>
+      <ul style="margin-top:18px"><li>Finds good designs in tens of simulations, not a blind sweep of thousands.</li><li>The bright corner is the highest energy, but it falls outside the feasible region.</li></ul>
+    </div>
+  </div>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>5</span></div>
+</section>
+
+<!-- 6 IT RUNS (VIDEO 2) -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">It runs today</div>
+  <h2>The full pipeline, on a laptop</h2>
+  <div class="rule"></div>
+  <div class="videobox" id="vid-term" style="width:100%;height:430px"><div class="play"></div><div class="vlabel">run_demo.py</div></div>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>6</span></div>
+</section>
+
+<!-- 7 RESULT -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">What it produced</div>
+  <h2>Ranked, buildable designs</h2>
+  <div class="rule"></div>
+  <div class="row">
+    <div class="col" style="flex:1.15"><img class="fig" src="assets/designspace.png" style="width:100%"/></div>
+    <div class="col">
+      <table class="designs">
+        <tr><th class="l">#</th><th>cathode µm</th><th>porosity</th><th>Wh/kg</th><th>rate</th></tr>
+        <tr class="win"><td class="l">1</td><td>RT1</td><td>RP1</td><td>RE1</td><td>RR1</td></tr>
+        <tr><td class="l">2</td><td>RT2</td><td>RP2</td><td>RE2</td><td>RR2</td></tr>
+        <tr><td class="l">3</td><td>RT3</td><td>RP3</td><td>RE3</td><td>RR3</td></tr>
+        <tr><td class="l">4</td><td>RT4</td><td>RP4</td><td>RE4</td><td>RR4</td></tr>
+        <tr><td class="l">5</td><td>RT5</td><td>RP5</td><td>RE5</td><td>RR5</td></tr>
+      </table>
+      <div class="lead" style="font-size:17px;color:var(--dim);margin-top:18px">Energy and capacity are quote-grade. Rate is directional, from the uncalibrated DFN.</div>
+    </div>
+  </div>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>7</span></div>
+</section>
+
+<!-- 8 GENERALIZES -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">It generalizes</div>
+  <h2>Same engine, different application</h2>
+  <div class="rule"></div>
+  <div class="row" style="margin-top:24px">
+    <div class="col"><div class="statcard"><div class="tag">Drone &nbsp;·&nbsp; 3C peak</div><div class="big" id="g-drone">26%</div><div class="unit">cathode porosity &nbsp;·&nbsp; <span id="g-drone-e">270</span> Wh/kg</div><div class="note">Balanced: holds rate while staying energy-dense.</div></div></div>
+    <div class="col"><div class="statcard"><div class="tag">Power tool &nbsp;·&nbsp; 5C peak</div><div class="big" id="g-power">42%</div><div class="unit">cathode porosity &nbsp;·&nbsp; <span id="g-power-e">249</span> Wh/kg</div><div class="note">Opens the electrode to hold the harder rate, trading some energy.</div></div></div>
+  </div>
+  <div class="lead" style="margin-top:26px">No retuning. The optimizer responds to the spec with a physically different design.</div>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>8</span></div>
+</section>
+
+<!-- 9 PIVOT -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">Where it stands</div>
+  <h2>Built on research data. Ready for IBC's.</h2>
+  <div class="rule"></div>
+  <div class="lead">Everything so far runs on published cell data. The structure is the same one IBC would use; the values plug in by configuration, not a rewrite.</div>
+  <ul>
+    <li><b>Plug in IBC's cell parameters</b> so the designs are IBC's, not the published cell's.</li>
+    <li><b>Calibrate the DFN to IBC test data</b> so the directional numbers become design-grade. This is the loop a vendor cannot copy, because the data stays inside IBC.</li>
+    <li>Each build and test feeds back, and the next design starts from everything learned before it.</li>
+  </ul>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>9</span></div>
+</section>
+
+<!-- 10 ASKS -->
+<section class="slide">
+  <div class="topmark"><div class="sq"></div><span>International Battery Company</span></div>
+  <div class="eyebrow">What we need from IBC</div>
+  <h2>Next steps</h2>
+  <div class="rule"></div>
+  <ul>
+    <li><b>The request-to-design process.</b> Time with the team that does it today, to fit the tool to how IBC actually works and size the value.</li>
+    <li><b>Cell parameters and test data</b> to plug in and calibrate against IBC's own cells.</li>
+    <li><b>A success metric we agree on:</b> match to IBC cells within the literature error band, and fewer build-and-test loops per design.</li>
+    <li><b>A weekly check-in</b> to track progress and results.</li>
+  </ul>
+  <div class="foot"><span class="org">Custom Cell Design Engine</span><span>10</span></div>
+</section>
+
+</body>
+</html>
