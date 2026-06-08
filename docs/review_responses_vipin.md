@@ -28,12 +28,11 @@ validates everything in between.
 
 ## C3 — add a human-in-the-loop after intake, before the run
 
-Agreed and added. There is now an explicit **engineer-approval gate**: after the
-intake agent turns the conversation into a structured spec, an engineer reviews
-and approves that spec before the autonomous optimization run starts. This is the
-highlighted block in the architecture diagram and is added to `THE_IDEA.md`. It
-costs almost nothing, catches a misread requirement before any compute is spent,
-and keeps a human accountable for what the run is actually optimizing.
+Considered, but we are keeping the run fully autonomous rather than adding a
+separate mid-pipeline approval gate. The human is already in the loop at both
+ends: a person writes the requirement going in, and engineers review the ranked
+output and decide what to actually build coming out. The run itself (search and
+scoring) is the part we want automated, with no human pause in the middle.
 
 ## C4 — don't just mimic the existing workflow; review it first
 
