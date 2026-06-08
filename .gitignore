@@ -30,11 +30,6 @@ runs/
 chroma/
 *.sqlite3
 
-# Node / Remotion
-node_modules/
-remotion/out/
-remotion/.remotion/
-
 # IDE
 .idea/
 .vscode/

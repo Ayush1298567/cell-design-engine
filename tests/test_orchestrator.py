@@ -1,6 +1,21 @@
-"""Orchestrator tests: seam-output validation and an end-to-end smoke run."""
+"""Orchestrator tests: seam-output validation, the approval gate, and a smoke run."""
 
-from celltool import agents, orchestrator
+import pytest
+
+from celltool import agents, config, orchestrator
+
+
+def test_auto_approve_spec_passes_complete_rejects_incomplete():
+    spec = config.load_config("configs/rfq.yaml")
+    assert orchestrator.auto_approve_spec(spec)["approved"] is True
+    assert orchestrator.auto_approve_spec({"targets": {}})["approved"] is False
+
+
+def test_run_blocks_on_rejected_spec():
+    # The human-in-the-loop gate: a rejecting reviewer stops the run before any
+    # compute (no DFN runs), so this is fast.
+    with pytest.raises(orchestrator.SpecNotApproved):
+        orchestrator.run(approve=lambda spec: {"approved": False, "reason": "needs changes"})
 
 
 def test_validate_strategy_clamps_inverted_budget():
@@ -23,5 +38,6 @@ def test_run_smoke(monkeypatch):
     monkeypatch.setattr(agents, "strategy", lambda spec: {"n_calls": 6, "n_initial": 3, "rationale": "test"})
     run = orchestrator.run()
     assert run.spec["spec_c_rate"] == 3.0
+    assert run.approval["approved"] is True
     assert run.opt.best_overrides and run.opt.best_result is not None
     assert {"converged", "best_score", "n_evaluated", "message"}.issubset(run.verdict)
