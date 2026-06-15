@@ -198,11 +198,13 @@ greenfield land-grab is largely gone.
   controls, no open POA&Ms, 3PAO-validated) for any system touching CUI, so commercial M365 and
   generic MSPs are *legally* disqualified. Huge orphaned segment: **~76K–118K Level 2 firms**
   (counts differ by rulemaking), **only 1% feel ready**, median SPRS 60 vs. 110 required, and
-  ~$116K median first-year cost crushing sub-$500K-revenue shops. **But contested** — PreVeil,
-  Summit 7, Cuick Trac, and (April 2026) OSIbeyond's fixed-price CaaS are already attacking it.
-  The remaining wedge is a *truly productized, transparently-priced, self-serve full stack*
-  (enclave + GCC High + auto-SSP/POA&M + live SPRS) for the sub-50-employee contractor — not
-  "offering the bundle," which several incumbents already claim.
+  ~$116K median first-year cost crushing sub-$500K-revenue shops. **But the *software* layer is
+  contested** — PreVeil, Summit 7, Cuick Trac, and (April 2026) OSIbeyond's fixed-price CaaS are
+  already attacking it. The genuinely un-crowdable wedge is the **scarce accredited assessor
+  capacity** (see the cross-cutting pattern below): <600 certified assessors and ~80 C3PAOs
+  against an estimated 2,000–3,000 assessors needed, with wait times projected past 18 months by
+  Q3 2026 — owning assessor *throughput* (recruit/train/schedule + finance the $75K–$150K
+  assessment) is a moat no dashboard vendor can add as a feature.
 
 - **Banking for defense-tech startups.** Perfect Brex shape (cash-rich, revenue-light, frozen out
   by fintech AUPs that bar "weapons/munitions" and by automated KYC/AML that flags ITAR/classified
@@ -222,6 +224,27 @@ greenfield land-grab is largely gone.
   is a timing bet, not a wall.
 
 ---
+
+## A cross-cutting pattern worth its own line: own the accredited gatekeeper's throughput
+
+The deepest structural lock the swarm found is not a product gap at all — it is a **licensed-capacity
+shortage**. The most reliable Brex setups in 2026 are **regulatory regimes that require an
+accredited human or institutional gatekeeper, where the law created demand years before the
+certified supply exists**:
+
+- **CMMC** requires assessment by accredited C3PAOs/assessors — supply is a fraction of need,
+  queues are blowing past 18 months.
+- **The EU AI Act** (for biometrics and product-embedded AI) requires designated **notified
+  bodies** — as of early 2026 "very few, if any" are fully designated, echoing the MDR/IVDR
+  backlog that stranded medical-device makers for years.
+
+The crucial insight: GRC/dashboard software (Vanta, Drata, OneTrust, and the AI-governance
+pure-plays) automates **evidence collection**, but it **cannot manufacture accredited
+assessor-hours or issue the certificate**. Money alone cannot buy the scarce throughput. A startup
+that *owns the gatekeeper capacity* — recruiting/training/scheduling accredited assessors, or
+becoming designated throughput itself, and financing the assessment fee — holds a moat an incumbent
+structurally cannot add as a feature. This is the same shape as Brex (the binding constraint is not
+software, it is who is *allowed* to say yes), one level up the stack.
 
 ## What the swarm explicitly rejected (and why)
 
