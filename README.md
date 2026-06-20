@@ -53,7 +53,7 @@ python scripts/run_demo.py            # end-to-end: ranked designs + design-spac
 
 ## Stack
 
-Python. PyBaMM (DFN simulation), PyBOP (Bayesian optimization and parameter fitting), ChromaDB (knowledge base / retrieval), an LLM agent layer over a deterministic orchestrator.
+Python. PyBaMM (DFN simulation), scikit-optimize (Gaussian-process Bayesian optimization), NumPy/SciPy, pytest. The agent layer is currently a deterministic, contract-first scaffold — the seams are in place, but there is no LLM in the loop yet. PyBOP parameter fitting and a ChromaDB knowledge base are planned, not built (see [`docs/THE_IDEA.md`](docs/THE_IDEA.md)).
 
 ---
 
